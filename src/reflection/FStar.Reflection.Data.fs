@@ -104,8 +104,18 @@ type comp_view =
     | C_Eff of list<unit> * name * term * list<argv>
 
 type ctor = name * typ
+
+type lb_view = {
+    lb_fv : fv;
+    lb_us : list<univ_name>;
+    lb_typ : typ;
+    lb_def : term;
+}
+
 type sigelt_view =
-    | Sg_Let of bool * fv * list<univ_name> * typ * term
+    | Sg_Let of bool * list<lb_view>
+        // The bool indicates if it's a let rec
+        // Non-empty list of (possibly) mutually recursive let-bindings
     | Sg_Inductive of name * list<univ_name> * list<binder> * typ * list<ctor> // name, params, type, constructors
     | Sg_Val of name * list<univ_name> * typ
     | Unk
@@ -201,6 +211,8 @@ let fstar_refl_bv_view          = mk_refl_data_lid_as_term "bv_view"
 let fstar_refl_bv_view_fv       = mk_refl_data_lid_as_fv   "bv_view"
 let fstar_refl_vconst           = mk_refl_data_lid_as_term "vconst"
 let fstar_refl_vconst_fv        = mk_refl_data_lid_as_fv   "vconst"
+let fstar_refl_lb_view          = mk_refl_data_lid_as_term "lb_view"
+let fstar_refl_lb_view_fv       = mk_refl_data_lid_as_fv   "lb_view"
 let fstar_refl_sigelt_view      = mk_refl_data_lid_as_term "sigelt_view"
 let fstar_refl_sigelt_view_fv   = mk_refl_data_lid_as_fv   "sigelt_view"
 let fstar_refl_exp              = mk_refl_data_lid_as_term "exp"
@@ -218,6 +230,19 @@ let ref_Mk_bv =
                                 Ident.mk_ident ("bv_ppname", Range.dummyRange);
                                 Ident.mk_ident ("bv_index" , Range.dummyRange);
                                 Ident.mk_ident ("bv_sort"  , Range.dummyRange)]) in
+    let fv = lid_as_fv lid delta_constant (Some attr) in
+    { lid = lid
+    ; fv  = fv
+    ; t   = fv_to_tm fv
+    }
+
+let ref_Mk_lb =
+    let lid = fstar_refl_data_lid "Mklb_view" in
+    let attr = Record_ctor (fstar_refl_data_lid "lb_view", [
+                                Ident.mk_ident ("lb_fv"  , Range.dummyRange);
+                                Ident.mk_ident ("lb_us"  , Range.dummyRange);
+				Ident.mk_ident ("lb_typ" , Range.dummyRange);
+                                Ident.mk_ident ("lb_def" , Range.dummyRange)]) in
     let fv = lid_as_fv lid delta_constant (Some attr) in
     { lid = lid
     ; fv  = fv

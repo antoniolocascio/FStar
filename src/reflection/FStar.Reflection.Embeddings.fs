@@ -626,16 +626,43 @@ let e_univ_names = e_list e_univ_name
 
 let e_ctor = e_tuple2 (e_string_list) e_term
 
+let e_lb_view =
+    let embed_lb_view (rng:Range.range) (lbv:lb_view) : term =
+        S.mk_Tm_app ref_Mk_lb.t [S.as_arg (embed e_fv         rng lbv.lb_fv);
+                                 S.as_arg (embed e_univ_names rng lbv.lb_us);
+				 S.as_arg (embed e_term       rng lbv.lb_typ);
+                                 S.as_arg (embed e_term       rng lbv.lb_def)]
+                    rng
+    in
+    let unembed_lb_view w (t : term) : option<lb_view> =
+        let t = U.unascribe t in
+        let hd, args = U.head_and_args t in
+        match (U.un_uinst hd).n, args with
+        | Tm_fvar fv, [(r, _); (fv', _); (us, _); (typ, _); (def,_)]
+	  when S.fv_eq_lid fv ref_Mk_lb.lid ->
+            BU.bind_opt (unembed' w e_fv fv') (fun fv' ->
+	    BU.bind_opt (unembed' w e_univ_names us) (fun us ->
+            BU.bind_opt (unembed' w e_term typ) (fun typ ->
+            BU.bind_opt (unembed' w e_term def) (fun def ->
+            Some <|
+	      { lb_fv = fv'; lb_us = us; lb_typ = typ; lb_def = def })))))
+
+        | _ ->
+            if w then
+                Err.log_issue t.pos (Err.Warning_NotEmbedded, (BU.format1 "Not an embedded lb_view: %s" (Print.term_to_string t)));
+            None
+    in
+    mk_emb embed_lb_view unembed_lb_view fstar_refl_lb_view
+
+let e_lbs = e_list e_lb_view
+
 let e_sigelt_view =
     let embed_sigelt_view (rng:Range.range) (sev:sigelt_view) : term =
         match sev with
-        | Sg_Let (r, fv, univs, ty, t) ->
+        | Sg_Let (r, lbvs) ->
             S.mk_Tm_app ref_Sg_Let.t
                         [S.as_arg (embed e_bool rng r);
-                            S.as_arg (embed e_fv rng fv);
-                            S.as_arg (embed e_univ_names rng univs);
-                            S.as_arg (embed e_term rng ty);
-                            S.as_arg (embed e_term rng t)]
+                            S.as_arg (embed e_lbs rng lbvs)]
                         rng
 
         | Sg_Inductive (nm, univs, bs, t, dcs) ->
@@ -669,13 +696,10 @@ let e_sigelt_view =
             BU.bind_opt (unembed' w (e_list e_ctor) dcs) (fun dcs ->
             Some <| Sg_Inductive (nm, us, bs, t, dcs))))))
 
-        | Tm_fvar fv, [(r, _); (fvar, _); (univs, _); (ty, _); (t, _)] when S.fv_eq_lid fv ref_Sg_Let.lid ->
+        | Tm_fvar fv, [(r, _); (lbvs, _)] when S.fv_eq_lid fv ref_Sg_Let.lid ->
             BU.bind_opt (unembed' w e_bool r) (fun r ->
-            BU.bind_opt (unembed' w e_fv fvar) (fun fvar ->
-            BU.bind_opt (unembed' w e_univ_names univs) (fun univs ->
-            BU.bind_opt (unembed' w e_term ty) (fun ty ->
-            BU.bind_opt (unembed' w e_term t) (fun t ->
-            Some <| Sg_Let (r, fvar, univs, ty, t))))))
+            BU.bind_opt (unembed' w e_lbs lbvs) (fun lbvs ->
+            Some <| Sg_Let (r, lbvs)))
 
         | Tm_fvar fv, [] when S.fv_eq_lid fv ref_Unk.lid ->
             Some Unk
