@@ -112,8 +112,7 @@ let mk_class (nm:string) : Tac decls =
                   let tcr = (`tcresolve) in
                   let tcdict = pack_binder dbv (Q_Meta tcr) [] in
                   let proj_name = cur_module () @ [base ^ s] in
-                  let proj_fv = pack_fv (cur_module () @ [base ^ s]) in
-                  let proj = pack (Tv_FVar proj_fv) in
+                  let proj = pack (Tv_FVar (pack_fv proj_name)) in
 
                   let proj_ty =
                     match lookup_typ (top_env ()) proj_name with
@@ -121,13 +120,8 @@ let mk_class (nm:string) : Tac decls =
                     | Some se ->
                       match inspect_sigelt se with
                       | Sg_Let _ lbvs -> begin
-                        let ot = List.Tot.find
-                                  (fun({lb_fv=fv;lb_us=_;lb_typ=_;lb_def=_})
-                                    -> FStar.InteractiveHelpers.Base.fv_eq fv proj_fv)
-                                  lbvs in
-                        match ot with
-                        | Some ({lb_fv=_;lb_us=us;lb_typ=typ;lb_def=_}) -> typ
-                        | None -> fail "mk_class: impossible, proj fv not in let group"
+                        let ({lb_fv=_;lb_us=_;lb_typ=typ;lb_def=_}) =
+                          lookup_lb_view lbvs proj_name in typ
                         end
                       | _ -> fail "mk_class: proj not Sg_Let?"
                   in
