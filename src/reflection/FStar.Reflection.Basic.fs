@@ -564,6 +564,10 @@ let pack_sigelt (sv:sigelt_view) : sigelt =
 	let lids = List.map (fun (fv,_) -> lid_of_fv fv) packed in
         mk_sigelt <| Sig_let ((r, lbs), lids)
 
+    | Sg_Inductive (nm, us_names, param_bs, ty, ctors) ->
+      let ind_lid = Ident.lid_of_path nm Range.dummyRange in
+      let s = SS.univ_var_closing us_names in
+      let nparam = List.length param_bs in
       let pack_ctor (c:ctor) : sigelt =
         let (nm, ty) = c in
         let lid = Ident.lid_of_path nm Range.dummyRange in

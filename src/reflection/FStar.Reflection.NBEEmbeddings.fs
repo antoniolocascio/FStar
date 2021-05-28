@@ -614,7 +614,7 @@ let e_lb_view =
             BU.bind_opt (unembed e_term cb typ) (fun typ ->
             BU.bind_opt (unembed e_term cb def) (fun def ->
             Some <|
-	      { lb_fv = fv'; lb_us = us; lb_typ = typ; lb_def = def })))))
+	      { lb_fv = fv'; lb_us = us; lb_typ = typ; lb_def = def }))))
 
         | _ ->
             Err.log_issue Range.dummyRange (Err.Warning_NotEmbedded, (BU.format1 "Not an embedded lb_view: %s" (t_to_string t)));

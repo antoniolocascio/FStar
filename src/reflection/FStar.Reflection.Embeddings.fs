@@ -645,7 +645,7 @@ let e_lb_view =
             BU.bind_opt (unembed' w e_term typ) (fun typ ->
             BU.bind_opt (unembed' w e_term def) (fun def ->
             Some <|
-	      { lb_fv = fv'; lb_us = us; lb_typ = typ; lb_def = def })))))
+	      { lb_fv = fv'; lb_us = us; lb_typ = typ; lb_def = def }))))
 
         | _ ->
             if w then
