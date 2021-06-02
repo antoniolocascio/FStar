@@ -489,15 +489,12 @@ let embed_vconfig (vcfg : vconfig) : term =
 let inspect_sigelt (se : sigelt) : sigelt_view =
     match se.sigel with
     | Sig_let ((r, lbs), _) ->
-        let inspect_letbinding lb =
-	    let fv = match lb.lbname with
-                     | Inr fv -> fv
-                     | Inl _  -> failwith "impossible: global Sig_let has bv"
-            in
-	    let s, us = SS.univ_var_opening lb.lbunivs in
-            let typ = SS.subst s lb.lbtyp in
-            let def = SS.subst s lb.lbdef in
-	    {lb_fv=fv;lb_us=us;lb_typ=typ;lb_def=def}
+        let inspect_letbinding (lb:letbinding) =
+            let {lbname=nm;lbunivs=us;lbtyp=typ;lbeff=eff;lbdef=def;lbattrs=attrs;lbpos=pos} = lb in
+            let s, us = SS.univ_var_opening us in
+            let typ = SS.subst s typ in
+            let def = SS.subst s def in
+            U.mk_letbinding nm us typ eff def attrs pos
         in
         Sg_Let (r, List.map inspect_letbinding lbs)
 
@@ -549,19 +546,23 @@ let inspect_sigelt (se : sigelt) : sigelt_view =
 
 let pack_sigelt (sv:sigelt_view) : sigelt =
     match sv with
-    | Sg_Let (r, lbvs) ->
-        let pack_lb_view (lbv:lb_view) =
-	    let {lb_fv=fv;lb_us=us;lb_typ=typ;lb_def=def} = lbv in
+    | Sg_Let (r, lbs) ->
+        let pack_letbinding (lb:letbinding) =
+	    let {lbname=nm;lbunivs=us;lbtyp=typ;lbeff=eff;lbdef=def;lbattrs=attrs;lbpos=pos} = lb in
+            let lid = match nm with
+                      | Inr fv -> lid_of_fv fv
+                      | _ -> failwith
+                              "impossible: pack_sigelt: bv in toplevel let binding"
+            in
             let s = SS.univ_var_closing us in
             let typ = SS.subst s typ in
             let def = SS.subst s def in
-	    let lb =
-	      U.mk_letbinding (Inr fv) us typ PC.effect_Tot_lid def [] def.pos in
-	    (fv, lb)
+            let lb = U.mk_letbinding nm us typ eff def attrs pos in
+            (lid, lb)
         in
-	let packed = List.map pack_lb_view lbvs in
+	let packed = List.map pack_letbinding lbs in
 	let lbs = List.map snd packed in
-	let lids = List.map (fun (fv,_) -> lid_of_fv fv) packed in
+	let lids = List.map fst packed in
         mk_sigelt <| Sig_let ((r, lbs), lids)
 
     | Sg_Inductive (nm, us_names, param_bs, ty, ctors) ->
@@ -599,6 +600,18 @@ let pack_sigelt (sv:sigelt_view) : sigelt =
 
     | Unk ->
         failwith "packing Unk, sorry"
+
+let inspect_lb (lb:letbinding) : lb_view =
+    let {lbname=nm;lbunivs=_;lbtyp=_;lbeff=_;lbdef=_;lbattrs=_;lbpos=_} = lb in
+    match nm with
+    | Inr fv -> {lb_fv = fv}
+    | _ -> failwith "Impossible: bv in top-level let binding"
+
+let pack_lb (lbv:lb_view) : letbinding =
+    let {lb_fv = fv} = lbv in
+    let typ = mk Tm_unknown Range.dummyRange in
+    let def = mk (Tm_constant C.Const_unit) Range.dummyRange in
+    U.mk_letbinding (Inr fv) [] typ PC.effect_Tot_lid def [] Range.dummyRange
 
 let inspect_bv (bv:bv) : bv_view =
     {

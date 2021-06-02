@@ -93,19 +93,21 @@ type comp_view =
 [Sg_Inductive] below. *)
 type ctor = name & typ
 
+
 noeq
 type lb_view = {
-    lb_fv : fv;
-    lb_us : list univ_name;
-    lb_typ : typ;
-    lb_def : term
+    lb_fv : fv //;
+    //lb_us : list univ_name;
+    //lb_typ : typ;
+    //lb_def : term
 }
+
 
 noeq
 type sigelt_view =
   | Sg_Let :
       (r:bool) ->
-      (lbvs:list lb_view) ->
+      (lbs:list letbinding) ->
       sigelt_view
 
   // Sg_Inductive basically coallesces the Sig_bundle used internally,

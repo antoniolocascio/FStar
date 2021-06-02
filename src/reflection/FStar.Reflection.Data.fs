@@ -107,13 +107,13 @@ type ctor = name * typ
 
 type lb_view = {
     lb_fv : fv;
-    lb_us : list<univ_name>;
-    lb_typ : typ;
-    lb_def : term;
+    //lb_us : list<univ_name>;
+    //lb_typ : typ;
+    //lb_def : term;
 }
 
 type sigelt_view =
-    | Sg_Let of bool * list<lb_view>
+    | Sg_Let of bool * list<letbinding>
         // The bool indicates if it's a let rec
         // Non-empty list of (possibly) mutually recursive let-bindings
     | Sg_Inductive of name * list<univ_name> * list<binder> * typ * list<ctor> // name, params, type, constructors
@@ -189,6 +189,8 @@ let fstar_refl_sigelt           = mk_refl_types_lid_as_term "sigelt"
 let fstar_refl_sigelt_fv        = mk_refl_types_lid_as_fv   "sigelt"
 let fstar_refl_term             = mk_refl_types_lid_as_term "term"
 let fstar_refl_term_fv          = mk_refl_types_lid_as_fv   "term"
+let fstar_refl_letbinding       = mk_refl_types_lid_as_term "letbinding"
+let fstar_refl_letbinding_fv    = mk_refl_types_lid_as_fv   "letbinding"
 let fstar_refl_ident            = mk_refl_types_lid_as_term "ident"
 let fstar_refl_ident_fv         = mk_refl_types_lid_as_fv   "ident"
 let fstar_refl_univ_name        = mk_refl_types_lid_as_term "univ_name"
@@ -236,13 +238,31 @@ let ref_Mk_bv =
     ; t   = fv_to_tm fv
     }
 
+let ref_Mk_letbinding =
+    let lid = fstar_refl_data_lid "Mkletbinding" in
+    let attr = Record_ctor (fstar_refl_data_lid "letbinding", [
+                                Ident.mk_ident ("lbname", Range.dummyRange);
+                                Ident.mk_ident ("lbunivs" , Range.dummyRange);
+                                Ident.mk_ident ("lbtyp"  , Range.dummyRange);
+                                Ident.mk_ident ("lbeff" , Range.dummyRange);
+                                Ident.mk_ident ("lbdef" , Range.dummyRange);
+                                Ident.mk_ident ("lbattrs" , Range.dummyRange);
+                                Ident.mk_ident ("lbpos" , Range.dummyRange)
+                                ]) in
+    let fv = lid_as_fv lid delta_constant (Some attr) in
+    { lid = lid
+    ; fv  = fv
+    ; t   = fv_to_tm fv
+    }
+
 let ref_Mk_lb =
     let lid = fstar_refl_data_lid "Mklb_view" in
     let attr = Record_ctor (fstar_refl_data_lid "lb_view", [
-                                Ident.mk_ident ("lb_fv"  , Range.dummyRange);
-                                Ident.mk_ident ("lb_us"  , Range.dummyRange);
+                                Ident.mk_ident ("lb_fv"  , Range.dummyRange)//;
+                                (*Ident.mk_ident ("lb_us"  , Range.dummyRange);
 				Ident.mk_ident ("lb_typ" , Range.dummyRange);
-                                Ident.mk_ident ("lb_def" , Range.dummyRange)]) in
+                                Ident.mk_ident ("lb_def" , Range.dummyRange) *)
+                                ]) in
     let fv = lid_as_fv lid delta_constant (Some attr) in
     { lid = lid
     ; fv  = fv

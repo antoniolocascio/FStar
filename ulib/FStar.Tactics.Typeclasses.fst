@@ -119,10 +119,10 @@ let mk_class (nm:string) : Tac decls =
                     | None -> fail "mk_class: proj not found?"
                     | Some se ->
                       match inspect_sigelt se with
-                      | Sg_Let _ lbvs -> begin
+                      | Sg_Let _ lbvs -> fail "TODO" (* begin
                         let ({lb_fv=_;lb_us=_;lb_typ=typ;lb_def=_}) =
                           lookup_lb_view lbvs proj_name in typ
-                        end
+                        end *)
                       | _ -> fail "mk_class: proj not Sg_Let?"
                   in
                   //dump ("proj_ty = " ^ term_to_string proj_ty);
@@ -148,11 +148,12 @@ let mk_class (nm:string) : Tac decls =
                   let ty : term = ty in
                   let def : term = def in
                   let sfv : fv = sfv in
-                  let lbv = {lb_fv=sfv;lb_us=us;lb_typ=ty;lb_def=def} in
+                  fail "TODO"
+                  (*let lbv = {lb_fv=sfv;lb_us=us;lb_typ=ty;lb_def=def} in
                   let se = pack_sigelt (Sg_Let false [lbv]) in
                   let se = set_sigelt_quals to_propagate se in
                   let _, (_, attrs) = inspect_binder b in
                   let se = set_sigelt_attrs attrs se in
                   //dump ("trying to return : " ^ term_to_string (quote se));
-                  se
+                  se*)
     ) bs
