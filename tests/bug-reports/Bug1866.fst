@@ -78,9 +78,9 @@ let traverse (name:string) : Tac decls =
   let d = lookup_typ (top_env ()) nm in
   let d = match d with Some d -> d | None -> fail "0" in
   let d, us = match inspect_sigelt d with
-    | Sg_Let _ lbvs -> begin
+    | Sg_Let _ lbs -> begin
       let {lb_fv=_;lb_us=us;lb_typ=typ;lb_def=d} =
-                          lookup_lb_view lbvs nm in d, us
+                          lookup_lb_view lbs nm in d, us
     end
     | _ -> fail "1"
   in
@@ -88,7 +88,8 @@ let traverse (name:string) : Tac decls =
   let r = not_do_much d in
   (* dump ("r = " ^ term_to_string r); *)
   let lbv = {lb_fv=name;lb_us=us;lb_typ=(pack Tv_Unknown);lb_def=r} in
-  let s = pack_sigelt (Sg_Let false [lbv]) in
+  let lb = pack_lb lbv in
+  let s = pack_sigelt (Sg_Let false [lb]) in
   [s]
 
 %splice[test_base0](traverse "base0")
