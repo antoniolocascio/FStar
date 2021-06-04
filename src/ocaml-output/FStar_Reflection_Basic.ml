@@ -690,26 +690,22 @@ let (inspect_sigelt :
     match se.FStar_Syntax_Syntax.sigel with
     | FStar_Syntax_Syntax.Sig_let ((r, lbs), uu___) ->
         let inspect_letbinding lb =
-          let fv =
-            match lb.FStar_Syntax_Syntax.lbname with
-            | FStar_Pervasives.Inr fv1 -> fv1
-            | FStar_Pervasives.Inl uu___1 ->
-                failwith "impossible: global Sig_let has bv" in
-          let uu___1 =
-            FStar_Syntax_Subst.univ_var_opening
-              lb.FStar_Syntax_Syntax.lbunivs in
+          let uu___1 = lb in
           match uu___1 with
-          | (s, us) ->
-              let typ =
-                FStar_Syntax_Subst.subst s lb.FStar_Syntax_Syntax.lbtyp in
-              let def =
-                FStar_Syntax_Subst.subst s lb.FStar_Syntax_Syntax.lbdef in
-              {
-                FStar_Reflection_Data.lb_fv = fv;
-                FStar_Reflection_Data.lb_us = us;
-                FStar_Reflection_Data.lb_typ = typ;
-                FStar_Reflection_Data.lb_def = def
-              } in
+          | { FStar_Syntax_Syntax.lbname = nm;
+              FStar_Syntax_Syntax.lbunivs = us;
+              FStar_Syntax_Syntax.lbtyp = typ;
+              FStar_Syntax_Syntax.lbeff = eff;
+              FStar_Syntax_Syntax.lbdef = def;
+              FStar_Syntax_Syntax.lbattrs = attrs;
+              FStar_Syntax_Syntax.lbpos = pos;_} ->
+              let uu___2 = FStar_Syntax_Subst.univ_var_opening us in
+              (match uu___2 with
+               | (s, us1) ->
+                   let typ1 = FStar_Syntax_Subst.subst s typ in
+                   let def1 = FStar_Syntax_Subst.subst s def in
+                   FStar_Syntax_Util.mk_letbinding nm us1 typ1 eff def1 attrs
+                     pos) in
         let uu___1 =
           let uu___2 = FStar_List.map inspect_letbinding lbs in (r, uu___2) in
         FStar_Reflection_Data.Sg_Let uu___1
@@ -795,31 +791,34 @@ let (pack_sigelt :
   FStar_Reflection_Data.sigelt_view -> FStar_Syntax_Syntax.sigelt) =
   fun sv ->
     match sv with
-    | FStar_Reflection_Data.Sg_Let (r, lbvs) ->
-        let pack_lb_view lbv =
-          let uu___ = lbv in
+    | FStar_Reflection_Data.Sg_Let (r, lbs) ->
+        let pack_letbinding lb =
+          let uu___ = lb in
           match uu___ with
-          | { FStar_Reflection_Data.lb_fv = fv;
-              FStar_Reflection_Data.lb_us = us;
-              FStar_Reflection_Data.lb_typ = typ;
-              FStar_Reflection_Data.lb_def = def;_} ->
+          | { FStar_Syntax_Syntax.lbname = nm;
+              FStar_Syntax_Syntax.lbunivs = us;
+              FStar_Syntax_Syntax.lbtyp = typ;
+              FStar_Syntax_Syntax.lbeff = eff;
+              FStar_Syntax_Syntax.lbdef = def;
+              FStar_Syntax_Syntax.lbattrs = attrs;
+              FStar_Syntax_Syntax.lbpos = pos;_} ->
+              let lid =
+                match nm with
+                | FStar_Pervasives.Inr fv -> FStar_Syntax_Syntax.lid_of_fv fv
+                | uu___1 ->
+                    failwith
+                      "impossible: pack_sigelt: bv in toplevel let binding" in
               let s = FStar_Syntax_Subst.univ_var_closing us in
               let typ1 = FStar_Syntax_Subst.subst s typ in
               let def1 = FStar_Syntax_Subst.subst s def in
-              let lb =
-                FStar_Syntax_Util.mk_letbinding (FStar_Pervasives.Inr fv) us
-                  typ1 FStar_Parser_Const.effect_Tot_lid def1 []
-                  def1.FStar_Syntax_Syntax.pos in
-              (fv, lb) in
-        let packed = FStar_List.map pack_lb_view lbvs in
-        let lbs = FStar_List.map FStar_Pervasives_Native.snd packed in
-        let lids =
-          FStar_List.map
-            (fun uu___ ->
-               match uu___ with
-               | (fv, uu___1) -> FStar_Syntax_Syntax.lid_of_fv fv) packed in
+              let lb1 =
+                FStar_Syntax_Util.mk_letbinding nm us typ1 eff def1 attrs pos in
+              (lid, lb1) in
+        let packed = FStar_List.map pack_letbinding lbs in
+        let lbs1 = FStar_List.map FStar_Pervasives_Native.snd packed in
+        let lids = FStar_List.map FStar_Pervasives_Native.fst packed in
         FStar_All.pipe_left FStar_Syntax_Syntax.mk_sigelt
-          (FStar_Syntax_Syntax.Sig_let ((r, lbs), lids))
+          (FStar_Syntax_Syntax.Sig_let ((r, lbs1), lids))
     | FStar_Reflection_Data.Sg_Inductive (nm, us_names, param_bs, ty, ctors)
         ->
         let ind_lid = FStar_Ident.lid_of_path nm FStar_Range.dummyRange in
@@ -871,6 +870,42 @@ let (pack_sigelt :
         FStar_All.pipe_left FStar_Syntax_Syntax.mk_sigelt
           (FStar_Syntax_Syntax.Sig_declare_typ (val_lid, us_names, typ))
     | FStar_Reflection_Data.Unk -> failwith "packing Unk, sorry"
+let (inspect_lb :
+  FStar_Syntax_Syntax.letbinding -> FStar_Reflection_Data.lb_view) =
+  fun lb ->
+    let uu___ = lb in
+    match uu___ with
+    | { FStar_Syntax_Syntax.lbname = nm; FStar_Syntax_Syntax.lbunivs = us;
+        FStar_Syntax_Syntax.lbtyp = typ; FStar_Syntax_Syntax.lbeff = eff;
+        FStar_Syntax_Syntax.lbdef = def; FStar_Syntax_Syntax.lbattrs = attrs;
+        FStar_Syntax_Syntax.lbpos = pos;_} ->
+        let uu___1 = FStar_Syntax_Subst.univ_var_opening us in
+        (match uu___1 with
+         | (s, us1) ->
+             let typ1 = FStar_Syntax_Subst.subst s typ in
+             let def1 = FStar_Syntax_Subst.subst s def in
+             (match nm with
+              | FStar_Pervasives.Inr fv ->
+                  {
+                    FStar_Reflection_Data.lb_fv = fv;
+                    FStar_Reflection_Data.lb_us = us1;
+                    FStar_Reflection_Data.lb_typ = typ1;
+                    FStar_Reflection_Data.lb_def = def1
+                  }
+              | uu___2 -> failwith "Impossible: bv in top-level let binding"))
+let (pack_lb :
+  FStar_Reflection_Data.lb_view -> FStar_Syntax_Syntax.letbinding) =
+  fun lbv ->
+    let uu___ = lbv in
+    match uu___ with
+    | { FStar_Reflection_Data.lb_fv = fv; FStar_Reflection_Data.lb_us = us;
+        FStar_Reflection_Data.lb_typ = typ;
+        FStar_Reflection_Data.lb_def = def;_} ->
+        let s = FStar_Syntax_Subst.univ_var_closing us in
+        let typ1 = FStar_Syntax_Subst.subst s typ in
+        let def1 = FStar_Syntax_Subst.subst s def in
+        FStar_Syntax_Util.mk_letbinding (FStar_Pervasives.Inr fv) us typ1
+          FStar_Parser_Const.effect_Tot_lid def1 [] FStar_Range.dummyRange
 let (inspect_bv : FStar_Syntax_Syntax.bv -> FStar_Reflection_Data.bv_view) =
   fun bv ->
     let uu___ = FStar_Ident.string_of_id bv.FStar_Syntax_Syntax.ppname in

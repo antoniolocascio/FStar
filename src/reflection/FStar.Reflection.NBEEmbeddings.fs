@@ -639,34 +639,12 @@ let e_lid : embedding<I.lid> =
 
 let e_letbinding =
     let embed_letbinding cb (lb:letbinding) : t =
-        mkConstruct ref_Mk_letbinding.fv [] [
-                     as_arg (embed (e_either e_bv e_fv) cb lb.lbname);
-                     as_arg (embed e_univ_names         cb lb.lbunivs);
-		     as_arg (embed e_term               cb lb.lbtyp);
-                     as_arg (embed e_lid                cb lb.lbeff);
-                     as_arg (embed e_term               cb lb.lbdef);
-		     as_arg (embed e_attributes         cb lb.lbattrs);
-                     as_arg (embed e_range              cb lb.lbpos) ]
+        mk_lazy cb lb fstar_refl_letbinding Lazy_letbinding
     in
     let unembed_letbinding cb (t : t) : option<letbinding> =
-       match t.nbe_t with
-       | Construct (fv, _, [(p,_);(a,_);(d,_);(e,_);(t,_);(u,_);(n,_)] )
-	  when S.fv_eq_lid fv ref_Mk_letbinding.lid ->
-            BU.bind_opt (unembed (e_either e_bv e_fv) cb n) (fun n ->
-	    BU.bind_opt (unembed e_univ_names cb u) (fun u ->
-            BU.bind_opt (unembed e_term cb t) (fun t ->
-            BU.bind_opt (unembed e_lid cb e) (fun e ->
-            BU.bind_opt (unembed e_term cb d) (fun d ->                                           BU.bind_opt (unembed e_attributes cb a) (fun a ->
-            BU.bind_opt (unembed e_range cb p) (fun p ->
-            Some <|
-	      { lbname = n;
-                lbunivs = u;
-                lbtyp = t;
-                lbeff = e;
-                lbdef = d;
-                lbattrs = a;
-                lbpos = p
-              })))))))
+         match t.nbe_t with
+        | Lazy (Inl {blob=lb; lkind=Lazy_letbinding}, _) ->
+            Some (undyn lb)
 
         | _ ->
             Err.log_issue Range.dummyRange (Err.Warning_NotEmbedded, (BU.format1 "Not an embedded letbinding: %s" (t_to_string t)));

@@ -359,7 +359,7 @@ let (__proj__Mklb_view__item__lb_def : lb_view -> FStar_Syntax_Syntax.term) =
   fun projectee ->
     match projectee with | { lb_fv; lb_us; lb_typ; lb_def;_} -> lb_def
 type sigelt_view =
-  | Sg_Let of (Prims.bool * lb_view Prims.list) 
+  | Sg_Let of (Prims.bool * FStar_Syntax_Syntax.letbinding Prims.list) 
   | Sg_Inductive of (name * FStar_Syntax_Syntax.univ_name Prims.list *
   FStar_Syntax_Syntax.binder Prims.list * typ * ctor Prims.list) 
   | Sg_Val of (name * FStar_Syntax_Syntax.univ_name Prims.list * typ) 
@@ -367,7 +367,7 @@ type sigelt_view =
 let (uu___is_Sg_Let : sigelt_view -> Prims.bool) =
   fun projectee -> match projectee with | Sg_Let _0 -> true | uu___ -> false
 let (__proj__Sg_Let__item___0 :
-  sigelt_view -> (Prims.bool * lb_view Prims.list)) =
+  sigelt_view -> (Prims.bool * FStar_Syntax_Syntax.letbinding Prims.list)) =
   fun projectee -> match projectee with | Sg_Let _0 -> _0
 let (uu___is_Sg_Inductive : sigelt_view -> Prims.bool) =
   fun projectee ->
@@ -524,6 +524,13 @@ let (fstar_refl_pack_sigelt : refl_constant) =
   match uu___126 with
   | (fstar_refl_inspect_sigelt1, fstar_refl_pack_sigelt1) ->
       fstar_refl_pack_sigelt1
+let (uu___133 : (refl_constant * refl_constant)) = mk_inspect_pack_pair "_lb"
+let (fstar_refl_inspect_lb : refl_constant) =
+  match uu___133 with
+  | (fstar_refl_inspect_lb1, fstar_refl_pack_lb) -> fstar_refl_inspect_lb1
+let (fstar_refl_pack_lb : refl_constant) =
+  match uu___133 with
+  | (fstar_refl_inspect_lb1, fstar_refl_pack_lb1) -> fstar_refl_pack_lb1
 let (fstar_refl_env : FStar_Syntax_Syntax.term) =
   mk_refl_types_lid_as_term "env"
 let (fstar_refl_env_fv : FStar_Syntax_Syntax.fv) =
@@ -552,6 +559,10 @@ let (fstar_refl_term : FStar_Syntax_Syntax.term) =
   mk_refl_types_lid_as_term "term"
 let (fstar_refl_term_fv : FStar_Syntax_Syntax.fv) =
   mk_refl_types_lid_as_fv "term"
+let (fstar_refl_letbinding : FStar_Syntax_Syntax.term) =
+  mk_refl_types_lid_as_term "letbinding"
+let (fstar_refl_letbinding_fv : FStar_Syntax_Syntax.fv) =
+  mk_refl_types_lid_as_fv "letbinding"
 let (fstar_refl_ident : FStar_Syntax_Syntax.term) =
   mk_refl_types_lid_as_term "ident"
 let (fstar_refl_ident_fv : FStar_Syntax_Syntax.fv) =

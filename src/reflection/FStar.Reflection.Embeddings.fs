@@ -660,38 +660,12 @@ let e_attributes = e_list e_attribute
 
 let e_letbinding =
     let embed_letbinding (rng:Range.range) (lb:letbinding) : term =
-        S.mk_Tm_app ref_Mk_letbinding.t
-                    [S.as_arg (embed (e_either e_bv e_fv) rng lb.lbname);
-                       S.as_arg (embed e_univ_names         rng lb.lbunivs);
-		       S.as_arg (embed e_term               rng lb.lbtyp);
-                       S.as_arg (embed e_lid                rng lb.lbeff);
-                       S.as_arg (embed e_term               rng lb.lbdef);
-		       S.as_arg (embed e_attributes         rng lb.lbattrs);
-                       S.as_arg (embed e_range              rng lb.lbpos) ]
-                    rng
+        U.mk_lazy lb fstar_refl_letbinding Lazy_letbinding (Some rng)
     in
     let unembed_letbinding w (t : term) : option<letbinding> =
-        let t = U.unascribe t in
-        let hd, args = U.head_and_args t in
-        match (U.un_uinst hd).n, args with
-        | Tm_fvar fv, [ (n, _); (u, _); (t, _); (e, _); (d, _); (a, _); (p, _) ]
-	  when S.fv_eq_lid fv ref_Mk_letbinding.lid ->
-            BU.bind_opt (unembed' w (e_either e_bv e_fv) n) (fun n ->
-	    BU.bind_opt (unembed' w e_univ_names u) (fun u ->
-            BU.bind_opt (unembed' w e_term t) (fun t ->
-            BU.bind_opt (unembed' w e_lid e) (fun e ->
-            BU.bind_opt (unembed' w e_term d) (fun d ->
-            BU.bind_opt (unembed' w e_attributes a) (fun a ->
-            BU.bind_opt (unembed' w e_range p) (fun p ->
-            Some <|
-	      { lbname = n;
-                lbunivs = u;
-                lbtyp = t;
-                lbeff = e;
-                lbdef = d;
-                lbattrs = a;
-                lbpos = p
-              })))))))
+        match (SS.compress t).n with
+        | Tm_lazy {blob=lb; lkind=Lazy_letbinding} ->
+            Some (undyn lb)
         | _ ->
             if w then
                 Err.log_issue t.pos (Err.Warning_NotEmbedded, (BU.format1 "Not an embedded letbinding: %s" (Print.term_to_string t)));
@@ -961,6 +935,18 @@ let unfold_lazy_binder (i : lazyinfo) : term =
                                           S.as_arg (embed e_aqualv i.rng aq);
                                           S.as_arg (embed e_attributes i.rng attrs)]
                 i.rng
+
+let unfold_lazy_letbinding (i : lazyinfo) : term =
+    let lb : letbinding = undyn i.blob in
+    let lbv = inspect_lb lb in
+    S.mk_Tm_app fstar_refl_pack_lb.t
+        [
+            S.as_arg (embed e_fv i.rng lbv.lb_fv);
+            S.as_arg (embed e_univ_names i.rng lbv.lb_us);
+            S.as_arg (embed e_term i.rng lbv.lb_typ);
+            S.as_arg (embed e_term i.rng lbv.lb_def)
+        ]
+        i.rng
 
 let unfold_lazy_fvar (i : lazyinfo) : term =
     let fv : fv = undyn i.blob in

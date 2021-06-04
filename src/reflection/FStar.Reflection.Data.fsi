@@ -235,24 +235,6 @@ let ref_Mk_bv =
     ; t   = fv_to_tm fv
     }
 
-let ref_Mk_letbinding =
-    let lid = fstar_refl_data_lid "Mkletbinding" in
-    let attr = Record_ctor (fstar_refl_data_lid "letbinding", [
-                                Ident.mk_ident ("lbname", Range.dummyRange);
-                                Ident.mk_ident ("lbunivs" , Range.dummyRange);
-                                Ident.mk_ident ("lbtyp"  , Range.dummyRange);
-                                Ident.mk_ident ("lbeff" , Range.dummyRange);
-                                Ident.mk_ident ("lbdef" , Range.dummyRange);
-                                Ident.mk_ident ("lbattrs" , Range.dummyRange);
-                                Ident.mk_ident ("lbpos" , Range.dummyRange)
-                                ]) in
-    let fv = lid_as_fv lid delta_constant (Some attr) in
-    { lid = lid
-    ; fv  = fv
-    ; t   = fv_to_tm fv
-    }
-
-
 let ref_Mk_lb =
     let lid = fstar_refl_data_lid "Mklb_view" in
     let attr = Record_ctor (fstar_refl_data_lid "lb_view", [

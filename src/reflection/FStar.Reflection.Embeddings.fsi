@@ -54,3 +54,4 @@ val unfold_lazy_optionstate : lazyinfo -> term
 val unfold_lazy_comp   : lazyinfo -> term
 val unfold_lazy_env    : lazyinfo -> term
 val unfold_lazy_sigelt : lazyinfo -> term
+val unfold_lazy_letbinding : lazyinfo -> term

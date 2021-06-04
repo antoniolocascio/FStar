@@ -294,6 +294,7 @@ and lazy_kind =
   | Lazy_goal
   | Lazy_sigelt
   | Lazy_uvar
+  | Lazy_letbinding
   | Lazy_embedding of emb_typ * Thunk.t<term>
 
 and binding =
@@ -401,7 +402,7 @@ type eff_decl = {
   mname       : lident;
 
   cattributes : list<cflag>;
-  
+
   univs       : univ_names;
   binders     : binders;
 
@@ -463,7 +464,7 @@ type sigelt' =
   | Sig_fail              of list<int>         (* Expected errors *)
                           * bool               (* true if should fail in --lax *)
                           * list<sigelt>       (* The sigelts to be checked *)
-  
+
 and sigelt = {
     sigel:    sigelt';
     sigrng:   Range.range;

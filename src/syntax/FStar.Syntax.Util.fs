@@ -456,6 +456,7 @@ let eq_lazy_kind k k' =
      | Lazy_proofstate, Lazy_proofstate
      | Lazy_goal, Lazy_goal
      | Lazy_sigelt, Lazy_sigelt
+     | Lazy_letbinding, Lazy_letbinding
      | Lazy_uvar, Lazy_uvar -> true
      | _ -> false
 
