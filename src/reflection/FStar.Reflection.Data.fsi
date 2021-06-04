@@ -105,9 +105,9 @@ type ctor = name * typ
 
 type lb_view = {
     lb_fv : fv;
-    //lb_us : list<univ_name>;
-    //lb_typ : typ;
-    //lb_def : term;
+    lb_us : list<univ_name>;
+    lb_typ : typ;
+    lb_def : term;
 }
 
 type sigelt_view =
@@ -256,10 +256,10 @@ let ref_Mk_letbinding =
 let ref_Mk_lb =
     let lid = fstar_refl_data_lid "Mklb_view" in
     let attr = Record_ctor (fstar_refl_data_lid "lb_view", [
-                                Ident.mk_ident ("lb_fv"  , Range.dummyRange)//;
-                                //Ident.mk_ident ("lb_us"  , Range.dummyRange);
-				//Ident.mk_ident ("lb_typ" , Range.dummyRange);
-                                //Ident.mk_ident ("lb_def" , Range.dummyRange)
+                                Ident.mk_ident ("lb_fv"  , Range.dummyRange);
+                                Ident.mk_ident ("lb_us"  , Range.dummyRange);
+				Ident.mk_ident ("lb_typ" , Range.dummyRange);
+                                Ident.mk_ident ("lb_def" , Range.dummyRange)
                                 ]) in
     let fv = lid_as_fv lid delta_constant (Some attr) in
     { lid = lid

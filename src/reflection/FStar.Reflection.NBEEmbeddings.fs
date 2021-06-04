@@ -598,7 +598,6 @@ let e_string_list = e_list e_string
 
 let e_ctor = e_tuple2 e_string_list e_term
 
-(*
 let e_lb_view =
     let embed_lb_view cb (lbv:lb_view) : t =
         mkConstruct ref_Mk_lb.fv [] [as_arg (embed e_fv         cb lbv.lb_fv);
@@ -608,7 +607,7 @@ let e_lb_view =
     in
     let unembed_lb_view cb (t : t) : option<lb_view> =
        match t.nbe_t with
-       | Construct (fv, _, [(r, _); (fv', _); (us, _); (typ, _); (def,_)])
+       | Construct (fv, _, [(fv', _); (us, _); (typ, _); (def,_)])
 	  when S.fv_eq_lid fv ref_Mk_lb.lid ->
             BU.bind_opt (unembed e_fv cb fv') (fun fv' ->
 	    BU.bind_opt (unembed e_univ_names cb us) (fun us ->
@@ -623,30 +622,8 @@ let e_lb_view =
     in
     mk_emb' embed_lb_view unembed_lb_view fstar_refl_lb_view_fv
 
-let e_lbs = e_list e_lb_view
-*)
-
-let e_lb_view =
-    let embed_lb_view cb (lbv:lb_view) : t =
-        mkConstruct ref_Mk_lb.fv [] [as_arg (embed e_fv         cb lbv.lb_fv)]
-    in
-    let unembed_lb_view cb (t : t) : option<lb_view> =
-       match t.nbe_t with
-       | Construct (fv, _, [(r, _); (fv', _); (us, _); (typ, _); (def,_)])
-	  when S.fv_eq_lid fv ref_Mk_lb.lid ->
-            BU.bind_opt (unembed e_fv cb fv') (fun fv' ->
-            Some <|
-	      { lb_fv = fv' })
-
-        | _ ->
-            Err.log_issue Range.dummyRange (Err.Warning_NotEmbedded, (BU.format1 "Not an embedded lb_view: %s" (t_to_string t)));
-            None
-    in
-    mk_emb' embed_lb_view unembed_lb_view fstar_refl_lb_view_fv
-
 let e_attribute  = e_term
 let e_attributes = e_list e_attribute
-
 
 (* embeds as a string list *)
 let e_lid : embedding<I.lid> =

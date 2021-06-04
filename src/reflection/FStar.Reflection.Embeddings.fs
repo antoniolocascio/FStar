@@ -626,7 +626,7 @@ let e_univ_names = e_list e_univ_name
 
 let e_ctor = e_tuple2 (e_string_list) e_term
 
-(*
+
 let e_lb_view =
     let embed_lb_view (rng:Range.range) (lbv:lb_view) : term =
         S.mk_Tm_app ref_Mk_lb.t [S.as_arg (embed e_fv         rng lbv.lb_fv);
@@ -639,7 +639,7 @@ let e_lb_view =
         let t = U.unascribe t in
         let hd, args = U.head_and_args t in
         match (U.un_uinst hd).n, args with
-        | Tm_fvar fv, [(r, _); (fv', _); (us, _); (typ, _); (def,_)]
+        | Tm_fvar fv, [(fv', _); (us, _); (typ, _); (def,_)]
 	  when S.fv_eq_lid fv ref_Mk_lb.lid ->
             BU.bind_opt (unembed' w e_fv fv') (fun fv' ->
 	    BU.bind_opt (unembed' w e_univ_names us) (fun us ->
@@ -647,30 +647,6 @@ let e_lb_view =
             BU.bind_opt (unembed' w e_term def) (fun def ->
             Some <|
 	      { lb_fv = fv'; lb_us = us; lb_typ = typ; lb_def = def }))))
-
-        | _ ->
-            if w then
-                Err.log_issue t.pos (Err.Warning_NotEmbedded, (BU.format1 "Not an embedded lb_view: %s" (Print.term_to_string t)));
-            None
-    in
-    mk_emb embed_lb_view unembed_lb_view fstar_refl_lb_view
-
-let e_lbs = e_list e_lb_view *)
-
-let e_lb_view =
-    let embed_lb_view (rng:Range.range) (lbv:lb_view) : term =
-        S.mk_Tm_app ref_Mk_lb.t [S.as_arg (embed e_fv         rng lbv.lb_fv)]
-                    rng
-    in
-    let unembed_lb_view w (t : term) : option<lb_view> =
-        let t = U.unascribe t in
-        let hd, args = U.head_and_args t in
-        match (U.un_uinst hd).n, args with
-        | Tm_fvar fv, [ (fv',_) ]
-	  when S.fv_eq_lid fv ref_Mk_lb.lid ->
-            BU.bind_opt (unembed' w e_fv fv') (fun fv' ->
-            Some <|
-	      { lb_fv = fv'})
 
         | _ ->
             if w then

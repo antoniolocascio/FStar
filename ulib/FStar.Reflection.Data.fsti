@@ -96,10 +96,10 @@ type ctor = name & typ
 
 noeq
 type lb_view = {
-    lb_fv : fv //;
-    //lb_us : list univ_name;
-    //lb_typ : typ;
-    //lb_def : term
+    lb_fv : fv;
+    lb_us : list univ_name;
+    lb_typ : typ;
+    lb_def : term
 }
 
 
