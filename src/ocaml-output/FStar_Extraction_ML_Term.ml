@@ -1907,7 +1907,9 @@ let (extract_lb_sig :
             FStar_Syntax_Syntax.lbattrs = lbattrs;
             FStar_Syntax_Syntax.lbpos = uu___2;_} ->
             let f_e = effect_as_etag g lbeff in
-            let lbtyp1 = FStar_Syntax_Subst.compress lbtyp in
+            let lbtyp1 =
+              let uu___3 = FStar_Syntax_Util.canon_arrow lbtyp in
+              FStar_Syntax_Subst.compress uu___3 in
             let no_gen uu___3 =
               let expected_t = term_as_mlty g lbtyp1 in
               (lbname_, f_e, (lbtyp1, ([], ([], expected_t))), false, lbdef) in
