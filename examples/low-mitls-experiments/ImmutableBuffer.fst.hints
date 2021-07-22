@@ -88,7 +88,7 @@
         "typing_LowStar.Buffer.trivial_preorder"
       ],
       0,
-      "e810dd3d31b5d1200d7a051db22650f3"
+      "48e8e2a489b183c70814d7bcc179d0d4"
     ],
     [
       "ImmutableBuffer.test",
@@ -191,7 +191,7 @@
         "unit_typing"
       ],
       0,
-      "e590bf1e1c492be233b6398e4e40aa17"
+      "352b64394a5c47ce76abac110f36cec3"
     ],
     [
       "ImmutableBuffer.test_ub",
@@ -280,7 +280,7 @@
         "typing_LowStar.UninitializedBuffer.initialization_preorder"
       ],
       0,
-      "d7ed13bcd7f5a4f2a4bb38896021aa89"
+      "d8b649f8a7b0f3946c1e521a1d1e18eb"
     ],
     [
       "ImmutableBuffer.test_bigops",
@@ -292,7 +292,7 @@
         "lemma_LowStar.Monotonic.Buffer.loc_union_loc_none_r"
       ],
       0,
-      "9fdc09a04429b49beccd3b36fc436f11"
+      "79649d41678176001e7fbea38ff34278"
     ],
     [
       "ImmutableBuffer.havoc_pf",
@@ -310,7 +310,7 @@
         "typing_LowStar.PrefixFreezableBuffer.prefix_freezable_preorder"
       ],
       0,
-      "974a39bd7433ff51ec5efdab75c7af54"
+      "b10921a772640953a24b40f97cabadeb"
     ],
     [
       "ImmutableBuffer.test_pf",
@@ -405,7 +405,7 @@
         "typing_LowStar.PrefixFreezableBuffer.prefix_freezable_preorder"
       ],
       0,
-      "65ee0dfbe2d0722e4b93f83ab7e33ec5"
+      "1b18545acb649edeafa7e7684c063204"
     ],
     [
       "ImmutableBuffer.test_witnessed_functoriality",
@@ -455,7 +455,7 @@
         "typing_FStar.Seq.Properties.replace_subseq"
       ],
       0,
-      "6311677f03fc1fd24e7e83b101752b07"
+      "7581534b0360fae029750822499c9680"
     ]
   ]
 ]

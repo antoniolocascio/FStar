@@ -245,6 +245,7 @@ let (steps_unfoldfully : FStar_Ident.lident) = psconst "delta_fully"
 let (steps_unfoldattr : FStar_Ident.lident) = psconst "delta_attr"
 let (steps_unfoldqual : FStar_Ident.lident) = psconst "delta_qualifier"
 let (steps_nbe : FStar_Ident.lident) = psconst "nbe"
+let (steps_unmeta : FStar_Ident.lident) = psconst "unmeta"
 let (deprecated_attr : FStar_Ident.lident) = pconst "deprecated"
 let (warn_on_use_attr : FStar_Ident.lident) = pconst "warn_on_use"
 let (inline_let_attr : FStar_Ident.lident) =
@@ -438,6 +439,8 @@ let (effect_TAC_lid : FStar_Ident.lid) = fstar_tactics_lid' ["Effect"; "TAC"]
 let (effect_Tac_lid : FStar_Ident.lid) = fstar_tactics_lid' ["Effect"; "Tac"]
 let (by_tactic_lid : FStar_Ident.lid) =
   fstar_tactics_lid' ["Effect"; "with_tactic"]
+let (rewrite_by_tactic_lid : FStar_Ident.lid) =
+  fstar_tactics_lid' ["Effect"; "rewrite_with_tactic"]
 let (synth_lid : FStar_Ident.lid) =
   fstar_tactics_lid' ["Effect"; "synth_by_tactic"]
 let (assert_by_tactic_lid : FStar_Ident.lid) =
